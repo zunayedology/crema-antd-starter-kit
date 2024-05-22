@@ -1,4 +1,4 @@
-// Table Properties -
+// TABLE PROPS -
 // * resizable columns
 // * dummy data from API
 // * row selection with radio
