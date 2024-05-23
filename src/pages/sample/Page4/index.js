@@ -62,6 +62,24 @@ class Page4 extends React.Component {
         key: 'status',
         width: 150,
       },
+      {
+        title: 'Name',
+        dataIndex: 'name',
+        key: 'name',
+        width: 150,
+      },
+      {
+        title: 'Email',
+        dataIndex: 'email',
+        key: 'email',
+        width: 200,
+      },
+      {
+        title: 'Status',
+        dataIndex: 'status',
+        key: 'status',
+        width: 150,
+      },
     ],
   };
 
