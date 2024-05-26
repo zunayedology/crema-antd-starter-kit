@@ -1,8 +1,3 @@
-// TABLE PROPS -
-// * resizable columns
-// * dummy data from API
-// * row selection with radio
-
 import React from 'react';
 import {Button, Space, Table, message} from 'antd';
 import {Resizable} from 'react-resizable';
