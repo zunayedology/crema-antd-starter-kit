@@ -1,5 +1,5 @@
 import React from 'react';
-import {Button, Space, Table, message} from 'antd';
+import {Button, message, Space, Table} from 'antd';
 import {Resizable} from 'react-resizable';
 import PropTypes from 'prop-types';
 import axios from 'axios';
@@ -9,6 +9,7 @@ const ResizableTitle = ({onResize, width, ...restProps}) => {
   if (!width) {
     return <th {...restProps} />;
   }
+
   return (
     <Resizable
       width={width}
