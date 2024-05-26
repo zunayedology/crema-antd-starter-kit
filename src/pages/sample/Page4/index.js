@@ -46,10 +46,16 @@ class Page4 extends React.Component {
         width: 150,
       },
       {
-        title: 'Email',
-        dataIndex: 'email',
-        key: 'email',
-        width: 200,
+        title: 'Status',
+        dataIndex: 'status',
+        key: 'status',
+        width: 150,
+      },
+      {
+        title: 'Name',
+        dataIndex: 'name',
+        key: 'name',
+        width: 150,
       },
       {
         title: 'Status',
@@ -64,10 +70,28 @@ class Page4 extends React.Component {
         width: 150,
       },
       {
-        title: 'Email',
-        dataIndex: 'email',
-        key: 'email',
-        width: 200,
+        title: 'Status',
+        dataIndex: 'status',
+        key: 'status',
+        width: 150,
+      },
+      {
+        title: 'Name',
+        dataIndex: 'name',
+        key: 'name',
+        width: 150,
+      },
+      {
+        title: 'Status',
+        dataIndex: 'status',
+        key: 'status',
+        width: 150,
+      },
+      {
+        title: 'Name',
+        dataIndex: 'name',
+        key: 'name',
+        width: 150,
       },
       {
         title: 'Status',
@@ -88,7 +112,6 @@ class Page4 extends React.Component {
       const users = response.data.results.map((user, index) => ({
         key: index,
         name: `${user.name.first} ${user.name.last}`,
-        email: user.email,
         status: this.getRandomStatus(),
       }));
       this.setState({data: users});
