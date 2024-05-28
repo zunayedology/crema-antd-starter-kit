@@ -6,27 +6,39 @@ import Highlighter from 'react-highlight-words';
 const data = [
   {
     key: '1',
-    name: 'John Brown',
+    name: 'Marie Curie',
     age: 32,
-    address: 'New York No. 1 Lake Park',
+    address: 'Paris',
   },
   {
     key: '2',
-    name: 'Joe Black',
+    name: 'Tom Hardy',
     age: 42,
-    address: 'London No. 1 Lake Park',
+    address: 'London',
   },
   {
     key: '3',
-    name: 'Jim Green',
+    name: 'Sydney Sweeney',
     age: 32,
-    address: 'Sydney No. 1 Lake Park',
+    address: 'Melbourne',
   },
   {
     key: '4',
-    name: 'Jim Red',
+    name: 'Tom Cruise',
     age: 32,
-    address: 'London No. 2 Lake Park',
+    address: 'California',
+  },
+  {
+    key: '5',
+    name: 'Klaus Michelson',
+    age: 42,
+    address: 'New York',
+  },
+  {
+    key: '6',
+    name: 'Ana De Armas',
+    age: 32,
+    address: 'Venice',
   },
 ];
 
