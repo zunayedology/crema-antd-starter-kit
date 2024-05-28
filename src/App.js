@@ -1,6 +1,5 @@
 import React from 'react';
 import {Provider} from 'react-redux';
-
 import './shared/styles/crema.less';
 import {
   AppContextProvider,
