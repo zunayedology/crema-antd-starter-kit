@@ -23,7 +23,7 @@ const buildTree = (list) => {
   return tree;
 };
 
-const Page1 = () => {
+const App = () => {
   const [flatTreeData, setFlatTreeData] = useState(initialTreeData);
   const [selectedNode, setSelectedNode] = useState(null);
   const [form] = Form.useForm();
@@ -91,6 +91,7 @@ const Page1 = () => {
   return (
     <div style={{display: 'flex', height: '100vh'}}>
       <div style={{flex: 1, overflow: 'auto', padding: '16px'}}>
+        <h1>SMS</h1>
         <Tree showLine onSelect={onSelect} treeData={treeData} />
       </div>
       <div style={{flex: 1, padding: '16px'}}>
@@ -139,4 +140,4 @@ const Page1 = () => {
   );
 };
 
-export default Page1;
+export default App;
