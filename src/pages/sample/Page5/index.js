@@ -91,7 +91,6 @@ const App = () => {
   return (
     <div style={{display: 'flex', height: '100vh'}}>
       <div style={{flex: 1, overflow: 'auto', padding: '16px'}}>
-        <h1>SMS</h1>
         <Tree showLine onSelect={onSelect} treeData={treeData} />
       </div>
       <div style={{flex: 1, padding: '16px'}}>
