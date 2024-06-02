@@ -83,6 +83,10 @@ const App = () => {
   };
 
   const handleAddNode = () => {
+    form.resetFields();
+  };
+
+  const handleSaveNode = () => {
     form.validateFields().then((values) => {
       addNode(values);
     });
@@ -121,6 +125,14 @@ const App = () => {
                   onClick={handleAddNode}
                   disabled={!selectedNode}>
                   Add
+                </Button>
+              </Col>
+              <Col>
+                <Button
+                  type='primary'
+                  onClick={handleSaveNode}
+                  disabled={!selectedNode}>
+                  Save
                 </Button>
               </Col>
               <Col>
