@@ -7,7 +7,6 @@ const initialTreeData = [
     title: 'Ticket 1',
     key: '0-0',
     parentKey: null,
-    level: 1,
     icon: <CarryOutOutlined />,
     isLeaf: false,
   },
@@ -55,35 +54,16 @@ const App = () => {
 
   const addNode = () => {
     form.resetFields();
+    setSelectedNode(null);
     setIsSaveDisabled(false);
   };
 
   const saveNode = (values) => {
-    const newKey = `${selectedNode.key}-${new Date().getTime()}`;
-    const newLevel = selectedNode.level + 1;
-    const isLeaf = newLevel === 2;
-    const newNode = {
-      title: isLeaf ? `${values.message} (isLeaf)` : values.message,
-      key: newKey,
-      parentKey: selectedNode.key,
-      level: newLevel,
-      icon: <CarryOutOutlined />,
-      isLeaf,
-      isQuestion: values.isQuestion,
-    };
-
-    setFlatTreeData([...flatTreeData, newNode]);
-    form.resetFields();
-    setIsSaveDisabled(true);
-  };
-
-  const saveNewParent = (values) => {
     const newKey = `0-${new Date().getTime()}`;
     const newNode = {
       title: values.message,
       key: newKey,
       parentKey: null,
-      level: 1,
       icon: <CarryOutOutlined />,
       isLeaf: false,
       isQuestion: values.isQuestion,
@@ -94,7 +74,7 @@ const App = () => {
     setIsSaveDisabled(true);
   };
 
-  const modifyNode = (values) => {
+  const applyChanges = (values) => {
     setFlatTreeData(
       flatTreeData.map((node) =>
         node.key === selectedNode.key
@@ -125,12 +105,6 @@ const App = () => {
     });
   };
 
-  const handleSaveNewParent = () => {
-    form.validateFields().then((values) => {
-      saveNewParent(values);
-    });
-  };
-
   return (
     <div style={{display: 'flex', height: '100vh'}}>
       <div style={{flex: 1, overflow: 'auto', padding: '16px'}}>
@@ -140,7 +114,7 @@ const App = () => {
         <Form
           form={form}
           layout='vertical'
-          onFinish={modifyNode}
+          onFinish={applyChanges}
           initialValues={{message: '', isQuestion: false}}>
           <Form.Item
             name='message'
@@ -155,14 +129,11 @@ const App = () => {
             <Row gutter={8}>
               <Col>
                 <Button type='primary' htmlType='submit'>
-                  Modify
+                  Apply
                 </Button>
               </Col>
               <Col>
-                <Button
-                  type='primary'
-                  onClick={addNode}
-                  disabled={!selectedNode || selectedNode.level >= 3}>
+                <Button type='primary' onClick={addNode}>
                   Add
                 </Button>
               </Col>
@@ -172,11 +143,6 @@ const App = () => {
                   onClick={handleSaveNode}
                   disabled={isSaveDisabled}>
                   Save
-                </Button>
-              </Col>
-              <Col>
-                <Button type='primary' onClick={handleSaveNewParent}>
-                  New
                 </Button>
               </Col>
               <Col>

@@ -48,6 +48,14 @@ const routesConfig = [
         icon: <BiAlignLeft />,
         path: '/sample/page-5',
       },
+      {
+        id: 'page-6',
+        title: 'Page 6',
+        messageId: 'sidebar.sample.page6',
+        type: 'item',
+        icon: <BiAlignLeft />,
+        path: '/sample/page-6',
+      },
     ],
   },
 ];
