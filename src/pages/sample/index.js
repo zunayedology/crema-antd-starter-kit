@@ -6,6 +6,7 @@ const Page2 = React.lazy(() => import('./Page2'));
 const Page3 = React.lazy(() => import('./Page3'));
 const Page4 = React.lazy(() => import('./Page4'));
 const Page5 = React.lazy(() => import('./Page5'));
+const Page6 = React.lazy(() => import('./Page6'));
 
 export const samplePagesConfigs = [
   {
@@ -32,5 +33,10 @@ export const samplePagesConfigs = [
     permittedRole: RoutePermittedRole.user,
     path: '/sample/page-5',
     element: <Page5 />,
+  },
+  {
+    permittedRole: RoutePermittedRole.user,
+    path: '/sample/page-6',
+    element: <Page6 />,
   },
 ];
