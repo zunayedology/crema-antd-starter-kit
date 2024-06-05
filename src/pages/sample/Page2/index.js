@@ -39,7 +39,7 @@ const ResizableTitle = ({onResize, width, ...restProps}) => {
 
 const {Option} = Select;
 
-const Page2 = () => {
+const App = () => {
   const [formData, setFormData] = useState([]);
 
   const onFinish = (values) => {
@@ -211,7 +211,7 @@ const Page2 = () => {
   );
 };
 
-export default Page2;
+export default App;
 
 ResizableTitle.propTypes = {
   onResize: PropTypes.func.isRequired,
