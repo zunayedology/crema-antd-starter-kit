@@ -1,6 +1,6 @@
 // eslint-disable no-unused-vars
-import React, {useState} from 'react';
-import {Table, Space, Button, Modal, Input} from 'antd';
+import React, {useState, useEffect} from 'react';
+import {Table, Space, Button, Modal, Input, Form} from 'antd';
 import {EditOutlined, DeleteOutlined, SearchOutlined} from '@ant-design/icons';
 
 const initialData = Array.from({length: 10}, (v, i) => ({
@@ -60,23 +60,65 @@ const DetailsTable = ({visible, onClose, data}) => {
   );
 };
 
-const Page2 = () => {
-  const [selectedRowKeys, setSelectedRowKeys] = useState([]);
-  const [data, setData] = useState(initialData);
-  const [isModalVisible, setIsModalVisible] = useState(false);
-  const [detailsData, setDetailsData] = useState([]);
+// eslint-disable-next-line react/prop-types
+const EditModal = ({visible, onClose, record, onSave}) => {
+  const [form] = Form.useForm();
 
-  const onSelectChange = (newSelectedRowKeys) => {
-    setSelectedRowKeys(newSelectedRowKeys);
+  useEffect(() => {
+    if (visible) {
+      form.setFieldsValue(record);
+    }
+  }, [visible, record, form]);
+
+  const handleSave = () => {
+    form.validateFields().then((values) => {
+      onSave({...record, ...values, updateTime: new Date().toLocaleString()});
+      onClose();
+    });
   };
 
+  return (
+    <Modal
+      title='Edit'
+      visible={visible}
+      onCancel={onClose}
+      onOk={handleSave}
+      okText='Save'
+      cancelText='Cancel'>
+      <Form form={form} initialValues={record}>
+        <Form.Item
+          name='name'
+          label='Name'
+          rules={[{required: true, message: 'Please input the name!'}]}>
+          <Input />
+        </Form.Item>
+        <Form.Item
+          name='numberCount'
+          label='Number Count'
+          rules={[{required: true, message: 'Please input the number count!'}]}>
+          <Input type='number' />
+        </Form.Item>
+        <Form.Item
+          name='description'
+          label='Description'
+          rules={[{required: true, message: 'Please input the description!'}]}>
+          <Input />
+        </Form.Item>
+      </Form>
+    </Modal>
+  );
+};
+
+const Page2 = () => {
+  const [data, setData] = useState(initialData);
+  const [isDetailsModalVisible, setIsDetailsModalVisible] = useState(false);
+  const [isEditModalVisible, setIsEditModalVisible] = useState(false);
+  const [currentRecord, setCurrentRecord] = useState(null);
+  const [detailsData, setDetailsData] = useState([]);
+
   const handleEdit = (record) => {
-    const newData = data.map((item) =>
-      item.key === record.key
-        ? {...item, updateTime: new Date().toLocaleString()}
-        : item,
-    );
-    setData(newData);
+    setCurrentRecord(record);
+    setIsEditModalVisible(true);
   };
 
   const handleDelete = (key) => {
@@ -84,13 +126,19 @@ const Page2 = () => {
   };
 
   const handleDetails = () => {
-    // Simulating customer numbers
     const customerNumbers = Array.from({length: 3}, (v, i) => ({
       key: i,
       number: `+1234567890${i}`,
     }));
     setDetailsData(customerNumbers);
-    setIsModalVisible(true);
+    setIsDetailsModalVisible(true);
+  };
+
+  const handleSave = (updatedRecord) => {
+    const newData = data.map((item) =>
+      item.key === updatedRecord.key ? updatedRecord : item,
+    );
+    setData(newData);
   };
 
   const columns = [
@@ -136,23 +184,28 @@ const Page2 = () => {
     {
       title: 'Actions',
       key: 'action2',
-      render: () => <Button onClick={() => handleDetails()}>Details</Button>,
+      render: (_, record) => (
+        <Button onClick={() => handleDetails(record)}>Details</Button>
+      ),
     },
   ];
 
-  const rowSelection = {
-    selectedRowKeys,
-    onChange: onSelectChange,
-  };
-
   return (
     <>
-      <Table rowSelection={rowSelection} columns={columns} dataSource={data} />
+      <Table columns={columns} dataSource={data} />
       <DetailsTable
-        visible={isModalVisible}
-        onClose={() => setIsModalVisible(false)}
+        visible={isDetailsModalVisible}
+        onClose={() => setIsDetailsModalVisible(false)}
         data={detailsData}
       />
+      {currentRecord && (
+        <EditModal
+          visible={isEditModalVisible}
+          onClose={() => setIsEditModalVisible(false)}
+          record={currentRecord}
+          onSave={handleSave}
+        />
+      )}
     </>
   );
 };
