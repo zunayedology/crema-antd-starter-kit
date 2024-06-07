@@ -354,6 +354,7 @@ const Page2 = () => {
       <Button
         type='primary'
         size='big'
+        style={{width: '25%'}}
         onClick={() => setIsCreateKeyListModalVisible(true)}>
         Create Key List
       </Button>
