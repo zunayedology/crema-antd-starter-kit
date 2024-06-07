@@ -1,27 +1,66 @@
 // eslint-disable no-unused-vars
 import React, {useState, useEffect} from 'react';
-import {Table, Space, Button, Modal, Input, Form} from 'antd';
-import {EditOutlined, DeleteOutlined, SearchOutlined} from '@ant-design/icons';
+import {
+  Table,
+  Space,
+  Button,
+  Modal,
+  Input,
+  Form,
+  Radio,
+  Checkbox,
+  Upload,
+} from 'antd';
+import {
+  EditOutlined,
+  DeleteOutlined,
+  SearchOutlined,
+  UploadOutlined,
+} from '@ant-design/icons';
 
-const initialData = Array.from({length: 10}, (v, i) => ({
-  key: i,
-  name: `Name ${i}`,
-  numberCount: Math.floor(Math.random() * 100),
-  description: `Description ${i}`,
-  createTime: new Date().toLocaleString(),
-  updateTime: '',
-}));
+const generateKeys = (count) => {
+  const chars =
+    'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  return Array.from({length: count}, () => {
+    return Array.from(
+      {length: 10},
+      () => chars[Math.floor(Math.random() * chars.length)],
+    ).join('');
+  });
+};
+
+const initialData = Array.from({length: 10}, (v, i) => {
+  const keyCount = Math.floor(Math.random() * 10);
+  return {
+    key: i,
+    id: i + Math.floor(Math.random() * 10),
+    userId: `User ${Math.floor(i / 2)}`,
+    name: `Name ${i}`,
+    keyCount: keyCount,
+    keys: generateKeys(keyCount),
+    description: `Description ${i}`,
+    type: 'Normal',
+    medium: i % 2 === 0 ? 'A' : 'B',
+    status: i % 2 === 0 ? 'Available' : 'Unavailable',
+    createTime: new Date().toLocaleString(),
+    updateTime: '',
+  };
+});
 
 // eslint-disable-next-line react/prop-types
 const DetailsTable = ({visible, onClose, data}) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [filteredData, setFilteredData] = useState(data);
 
+  useEffect(() => {
+    setFilteredData(data);
+  }, [data]);
+
   const handleSearch = (e) => {
     const value = e.target.value;
     setSearchTerm(value);
     // eslint-disable-next-line react/prop-types
-    const filtered = data.filter((item) => item.number.includes(value));
+    const filtered = data.filter((item) => item.keys.includes(value));
     setFilteredData(filtered);
   };
 
@@ -33,7 +72,7 @@ const DetailsTable = ({visible, onClose, data}) => {
     <Modal title='Details' visible={visible} onCancel={onClose} footer={null}>
       <Input
         prefix={<SearchOutlined />}
-        placeholder='Search by Number'
+        placeholder='Search by Keys'
         value={searchTerm}
         onChange={handleSearch}
       />
@@ -50,8 +89,8 @@ const DetailsTable = ({visible, onClose, data}) => {
             ),
           },
           {
-            title: 'Number',
-            dataIndex: 'number',
+            title: 'Keys',
+            dataIndex: 'keys',
           },
         ]}
         pagination={{pageSize: 5}}
@@ -93,9 +132,9 @@ const EditModal = ({visible, onClose, record, onSave}) => {
           <Input />
         </Form.Item>
         <Form.Item
-          name='numberCount'
-          label='Number Count'
-          rules={[{required: true, message: 'Please input the number count!'}]}>
+          name='keyCount'
+          label='Key Count'
+          rules={[{required: true, message: 'Please input the key count!'}]}>
           <Input type='number' />
         </Form.Item>
         <Form.Item
@@ -104,6 +143,139 @@ const EditModal = ({visible, onClose, record, onSave}) => {
           rules={[{required: true, message: 'Please input the description!'}]}>
           <Input />
         </Form.Item>
+        <Form.Item
+          name='type'
+          label='Type'
+          rules={[{required: true, message: 'Please select the type!'}]}>
+          <Radio.Group>
+            <Radio value='Normal'>Normal</Radio>
+            <Radio value='Reward'>Reward</Radio>
+          </Radio.Group>
+        </Form.Item>
+        <Form.Item
+          name='medium'
+          label='Medium'
+          rules={[{required: true, message: 'Please select the medium!'}]}>
+          <Radio.Group>
+            <Radio value='A'>A</Radio>
+            <Radio value='B'>B</Radio>
+          </Radio.Group>
+        </Form.Item>
+        <Form.Item
+          name='status'
+          label='Status'
+          rules={[{required: true, message: 'Please select the status!'}]}>
+          <Radio.Group>
+            <Radio value='Available'>Available</Radio>
+            <Radio value='Unavailable'>Unavailable</Radio>
+          </Radio.Group>
+        </Form.Item>
+      </Form>
+    </Modal>
+  );
+};
+
+// eslint-disable-next-line react/prop-types
+const CreateKeyListModal = ({visible, onClose, onSave}) => {
+  const [form] = Form.useForm();
+  const [uploadType, setUploadType] = useState('Upload');
+
+  const handleSave = () => {
+    form.validateFields().then((values) => {
+      onSave({...values, createTime: new Date().toLocaleString()});
+      onClose();
+    });
+  };
+
+  return (
+    <Modal
+      title='Create Key List'
+      visible={visible}
+      onCancel={onClose}
+      onOk={handleSave}
+      okText='Save'
+      cancelText='Cancel'>
+      <Form form={form}>
+        <Form.Item
+          name='name'
+          label='Key List Name'
+          rules={[
+            {required: true, message: 'Please input the key list name!'},
+          ]}>
+          <Input />
+        </Form.Item>
+        <Form.Item
+          name='description'
+          label='Description'
+          rules={[{required: true, message: 'Please input the description!'}]}>
+          <Input />
+        </Form.Item>
+        <Form.Item
+          name='type'
+          label='Type'
+          rules={[{required: true, message: 'Please select the type!'}]}>
+          <Radio.Group>
+            <Radio value='Normal'>Normal</Radio>
+            <Radio value='Reward'>Reward</Radio>
+          </Radio.Group>
+        </Form.Item>
+        <Form.Item
+          name='status'
+          label='Status'
+          rules={[{required: true, message: 'Please select the status!'}]}>
+          <Radio.Group>
+            <Radio value='Available'>Available</Radio>
+            <Radio value='Unavailable'>Unavailable</Radio>
+          </Radio.Group>
+        </Form.Item>
+        <Form.Item name='uploadType'>
+          <Radio.Group
+            onChange={(e) => setUploadType(e.target.value)}
+            value={uploadType}>
+            <Radio value='Upload' defaultChecked={true}>
+              Upload from CSV
+            </Radio>
+            <Radio value='AutoGenerate'>Auto Generate Keys</Radio>
+          </Radio.Group>
+        </Form.Item>
+        {uploadType === 'Upload' ? (
+          <Form.Item name='csv'>
+            <Upload>
+              <Button icon={<UploadOutlined />}>Click to Upload</Button>
+            </Upload>
+          </Form.Item>
+        ) : (
+          <>
+            <Form.Item
+              name='keyCount'
+              label='Key Count'
+              rules={[
+                {required: true, message: 'Please input the key count!'},
+              ]}>
+              <Input type='number' />
+            </Form.Item>
+            <Form.Item
+              name='keyLength'
+              label='Key Length'
+              rules={[
+                {required: true, message: 'Please input the key length!'},
+              ]}>
+              <Input type='number' />
+            </Form.Item>
+            <Form.Item
+              name='keyFormat'
+              label='Key Format'
+              rules={[
+                {required: true, message: 'Please select the key format!'},
+              ]}>
+              <Checkbox.Group>
+                <Checkbox value='A-Z'>A-Z</Checkbox>
+                <Checkbox value='a-z'>a-z</Checkbox>
+                <Checkbox value='0-9'>0-9</Checkbox>
+              </Checkbox.Group>
+            </Form.Item>
+          </>
+        )}
       </Form>
     </Modal>
   );
@@ -113,6 +285,8 @@ const Page2 = () => {
   const [data, setData] = useState(initialData);
   const [isDetailsModalVisible, setIsDetailsModalVisible] = useState(false);
   const [isEditModalVisible, setIsEditModalVisible] = useState(false);
+  const [isCreateKeyListModalVisible, setIsCreateKeyListModalVisible] =
+    useState(false);
   const [currentRecord, setCurrentRecord] = useState(null);
   const [detailsData, setDetailsData] = useState([]);
 
@@ -125,12 +299,9 @@ const Page2 = () => {
     setData(data.filter((item) => item.key !== key));
   };
 
-  const handleDetails = () => {
-    const customerNumbers = Array.from({length: 3}, (v, i) => ({
-      key: i,
-      number: `+1234567890${i}`,
-    }));
-    setDetailsData(customerNumbers);
+  const handleDetails = (record) => {
+    const keys = record.keys.map((key, i) => ({key: i, keys: key}));
+    setDetailsData(keys);
     setIsDetailsModalVisible(true);
   };
 
@@ -141,19 +312,15 @@ const Page2 = () => {
     setData(newData);
   };
 
+  const handleCreateKeyListSave = (newRecord) => {
+    const newRecordWithKey = {...newRecord, key: data.length};
+    setData([...data, newRecordWithKey]);
+  };
+
   const columns = [
     {
-      title: 'Select',
-      key: 'select',
-      render: () => (
-        <Space size='middle'>
-          <input type='checkbox' />
-        </Space>
-      ),
-    },
-    {
-      title: ' ',
-      key: 'action1',
+      title: 'Actions',
+      key: 'actions',
       render: (_, record) => (
         <Space size='middle'>
           <EditOutlined onClick={() => handleEdit(record)} />
@@ -161,37 +328,35 @@ const Page2 = () => {
         </Space>
       ),
     },
+    {title: 'ID', dataIndex: 'id'},
+    {title: 'User ID', dataIndex: 'userId'},
+    {title: 'Name', dataIndex: 'name'},
+    {title: 'Key Count', dataIndex: 'keyCount'},
+    {title: 'Description', dataIndex: 'description'},
+    {title: 'Type', dataIndex: 'type'},
+    {title: 'Medium', dataIndex: 'medium'},
+    {title: 'Status', dataIndex: 'status'},
+    {title: 'Create Time', dataIndex: 'createTime'},
+    {title: 'Update Time', dataIndex: 'updateTime'},
     {
-      title: 'Name',
-      dataIndex: 'name',
-    },
-    {
-      title: 'Number Count',
-      dataIndex: 'numberCount',
-    },
-    {
-      title: 'Description',
-      dataIndex: 'description',
-    },
-    {
-      title: 'Create Time',
-      dataIndex: 'createTime',
-    },
-    {
-      title: 'Update Time',
-      dataIndex: 'updateTime',
-    },
-    {
-      title: 'Actions',
-      key: 'action2',
+      title: 'Details',
+      key: 'details',
       render: (_, record) => (
-        <Button onClick={() => handleDetails(record)}>Details</Button>
+        <Button size='small' onClick={() => handleDetails(record)}>
+          Details
+        </Button>
       ),
     },
   ];
 
   return (
     <>
+      <Button
+        type='primary'
+        size='big'
+        onClick={() => setIsCreateKeyListModalVisible(true)}>
+        Create Key List
+      </Button>
       <Table columns={columns} dataSource={data} />
       <DetailsTable
         visible={isDetailsModalVisible}
@@ -206,6 +371,11 @@ const Page2 = () => {
           onSave={handleSave}
         />
       )}
+      <CreateKeyListModal
+        visible={isCreateKeyListModalVisible}
+        onClose={() => setIsCreateKeyListModalVisible(false)}
+        onSave={handleCreateKeyListSave}
+      />
     </>
   );
 };
