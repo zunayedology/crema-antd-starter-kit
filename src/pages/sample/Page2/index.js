@@ -182,7 +182,10 @@ const CreateKeyListModal = ({visible, onClose, onSave}) => {
 
   const handleSave = () => {
     form.validateFields().then((values) => {
-      onSave({...values, createTime: new Date().toLocaleString()});
+      onSave({
+        ...values,
+        createTime: new Date().toLocaleString(),
+      });
       onClose();
     });
   };
