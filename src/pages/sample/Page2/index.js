@@ -55,7 +55,7 @@ const initialData = Array.from({length: 5}, (_, i) => {
     userId: `User ${Math.floor(i / 2)}`,
     name: `Name ${i}`,
     keyCount: keyCount,
-    keys: generateKeys(keyCount),
+    keys: generateKeys(keyCount, 10, ['A-Z', 'a-z', '0-9']),
     description: `Description ${i}`,
     type: 'Normal',
     medium: i % 2 === 0 ? 'A' : 'B',
@@ -332,7 +332,10 @@ const Page2 = () => {
       key: 'actions',
       render: (_, record) => (
         <Space size='middle'>
-          <EditOutlined onClick={() => handleEdit(record)} />
+          <EditOutlined
+            onClick={() => handleEdit(record)}
+            style={{marginLeft: '10px'}}
+          />
           <DeleteOutlined onClick={() => handleDelete(record.key)} />
         </Space>
       ),
@@ -362,11 +365,11 @@ const Page2 = () => {
       <Button
         type='primary'
         size='big'
-        style={{width: '25%'}}
+        style={{width: '25%', marginBottom: '20px'}}
         onClick={() => setIsCreateKeyListModalVisible(true)}>
         Create Key List
       </Button>
-      <Table columns={columns} dataSource={data} />
+      <Table columns={columns} dataSource={data} scroll={{x: 'max-content'}} />
       <DetailsTable
         visible={isDetailsModalVisible}
         onClose={() => setIsDetailsModalVisible(false)}
