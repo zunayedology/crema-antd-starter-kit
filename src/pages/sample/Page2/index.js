@@ -124,7 +124,7 @@ const EditModal = ({visible, onClose, record, onSave}) => {
       onOk={handleSave}
       okText='Save'
       cancelText='Cancel'>
-      <Form form={form} initialValues={record}>
+      <Form form={form} layout={'vertical'} initialValues={record}>
         <Form.Item
           name='name'
           label='Name'
@@ -189,7 +189,7 @@ const CreateKeyListModal = ({visible, onClose, onSave}) => {
       onOk={handleSave}
       okText='Save'
       cancelText='Cancel'>
-      <Form form={form}>
+      <Form form={form} layout={'vertical'}>
         <Form.Item
           name='name'
           label='Key List Name'
