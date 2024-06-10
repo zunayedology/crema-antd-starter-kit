@@ -41,7 +41,6 @@ const initialData = Array.from({length: 10}, (v, i) => {
     description: `Description ${i}`,
     type: 'Normal',
     medium: i % 2 === 0 ? 'A' : 'B',
-    status: i % 2 === 0 ? 'Available' : 'Unavailable',
     createTime: new Date().toLocaleString(),
     updateTime: '',
   };
@@ -84,7 +83,8 @@ const DetailsTable = ({visible, onClose, data}) => {
             key: 'action',
             render: (_, record) => (
               <Space size='middle'>
-                <Button onClick={() => handleDelete(record.key)}>Delete</Button>
+                <DeleteOutlined
+                  onClick={() => handleDelete(record.key)}></DeleteOutlined>
               </Space>
             ),
           },
@@ -161,15 +161,6 @@ const EditModal = ({visible, onClose, record, onSave}) => {
             <Radio value='B'>B</Radio>
           </Radio.Group>
         </Form.Item>
-        <Form.Item
-          name='status'
-          label='Status'
-          rules={[{required: true, message: 'Please select the status!'}]}>
-          <Radio.Group>
-            <Radio value='Available'>Available</Radio>
-            <Radio value='Unavailable'>Unavailable</Radio>
-          </Radio.Group>
-        </Form.Item>
       </Form>
     </Modal>
   );
@@ -222,15 +213,7 @@ const CreateKeyListModal = ({visible, onClose, onSave}) => {
             <Radio value='Reward'>Reward</Radio>
           </Radio.Group>
         </Form.Item>
-        <Form.Item
-          name='status'
-          label='Status'
-          rules={[{required: true, message: 'Please select the status!'}]}>
-          <Radio.Group>
-            <Radio value='Available'>Available</Radio>
-            <Radio value='Unavailable'>Unavailable</Radio>
-          </Radio.Group>
-        </Form.Item>
+
         <Form.Item name='uploadType'>
           <Radio.Group
             onChange={(e) => setUploadType(e.target.value)}
@@ -338,7 +321,6 @@ const Page2 = () => {
     {title: 'Description', dataIndex: 'description'},
     {title: 'Type', dataIndex: 'type'},
     {title: 'Medium', dataIndex: 'medium'},
-    {title: 'Status', dataIndex: 'status'},
     {title: 'Create Time', dataIndex: 'createTime'},
     {title: 'Update Time', dataIndex: 'updateTime'},
     {
