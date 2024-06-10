@@ -11,6 +11,7 @@ import {
   Checkbox,
   Upload,
 } from 'antd';
+
 import {
   EditOutlined,
   DeleteOutlined,
@@ -18,18 +19,35 @@ import {
   UploadOutlined,
 } from '@ant-design/icons';
 
-const generateKeys = (count) => {
-  const chars =
-    'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-  return Array.from({length: count}, () => {
-    return Array.from(
-      {length: 10},
-      () => chars[Math.floor(Math.random() * chars.length)],
-    ).join('');
-  });
+const generateKeys = (keyCount, keyLength, keyFormat) => {
+  if (!Array.isArray(keyFormat)) {
+    console.error('Invalid key format:', keyFormat);
+    return [];
+  }
+
+  let charSet = '';
+  if (keyFormat.includes('A-Z')) charSet += 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  if (keyFormat.includes('a-z')) charSet += 'abcdefghijklmnopqrstuvwxyz';
+  if (keyFormat.includes('0-9')) charSet += '0123456789';
+
+  if (!charSet) {
+    console.error('Character set is empty');
+    return [];
+  }
+
+  const keys = [];
+  for (let i = 0; i < keyCount; i++) {
+    let key = '';
+    for (let j = 0; j < keyLength; j++) {
+      const randomIndex = Math.floor(Math.random() * charSet.length);
+      key += charSet[randomIndex];
+    }
+    keys.push(key);
+  }
+  return keys;
 };
 
-const initialData = Array.from({length: 10}, (v, i) => {
+const initialData = Array.from({length: 5}, (_, i) => {
   const keyCount = Math.floor(Math.random() * 10);
   return {
     key: i,
@@ -74,6 +92,7 @@ const DetailsTable = ({visible, onClose, data}) => {
         placeholder='Search by Keys'
         value={searchTerm}
         onChange={handleSearch}
+        style={{marginBottom: '10px'}}
       />
       <Table
         dataSource={filteredData}
@@ -173,10 +192,14 @@ const CreateKeyListModal = ({visible, onClose, onSave}) => {
 
   const handleSave = () => {
     form.validateFields().then((values) => {
-      onSave({
-        ...values,
-        createTime: new Date().toLocaleString(),
-      });
+      if (uploadType === 'AutoGenerate') {
+        const {keyCount, keyLength, keyFormat} = values;
+        const keys = generateKeys(keyCount, keyLength, keyFormat);
+        onSave({...values, keys, createTime: new Date().toLocaleString()});
+      } else {
+        // Handle CSV upload logic here
+        onSave({...values, createTime: new Date().toLocaleString()});
+      }
       onClose();
     });
   };
