@@ -1,166 +1,215 @@
-// Tree: Only Parent can be created
+import React, {useState, useEffect} from 'react';
+import {Table, Button, message, Modal, Form, Input, InputNumber} from 'antd';
+import axios from 'axios';
 
-import React, {useState} from 'react';
-import {CarryOutOutlined} from '@ant-design/icons';
-import {Tree, Input, Checkbox, Button, Form, Row, Col} from 'antd';
+const API_URL = 'http://localhost:8080/api/accounts';
 
-const initialTreeData = [
-  {
-    title: 'Ticket 1',
-    key: '0-0',
-    parentKey: null,
-    icon: <CarryOutOutlined />,
-    isLeaf: false,
+const axiosInstance = axios.create({
+  baseURL: API_URL,
+  headers: {
+    'Content-Type': 'application/json',
   },
-];
+  withCredentials: true,
+});
 
-const buildTree = (list) => {
-  const tree = [];
-  const lookup = {};
+export const getAccounts = () => axiosInstance.get('/');
+export const createAccount = (account) => axiosInstance.post('/', account);
+export const updateAccount = (id, account) =>
+  axiosInstance.put(`/${id}`, account);
+export const deleteAccount = (id) => axiosInstance.delete(`/${id}`);
+export const deposit = (id, amount) =>
+  axiosInstance.put(`/${id}/deposit`, {amount});
+export const withdraw = (id, amount) =>
+  axiosInstance.put(`/${id}/withdraw`, {amount});
 
-  list.forEach((item) => (lookup[item.key] = {...item, children: []}));
-
-  list.forEach((item) => {
-    if (item.parentKey === null) {
-      tree.push(lookup[item.key]);
-    } else {
-      lookup[item.parentKey].children.push(lookup[item.key]);
-    }
-  });
-
-  return tree;
-};
-
-const App = () => {
-  const [flatTreeData, setFlatTreeData] = useState(initialTreeData);
-  const [selectedNode, setSelectedNode] = useState(null);
+// eslint-disable-next-line react/prop-types
+const AccountModal = ({visible, onClose, onRefresh, account}) => {
   const [form] = Form.useForm();
-  const [isSaveDisabled, setIsSaveDisabled] = useState(true);
 
-  const treeData = buildTree(flatTreeData);
-
-  const onSelect = (selectedKeys, {selected, node}) => {
-    if (selected) {
-      setSelectedNode(node);
-      form.setFieldsValue({
-        message: node.title.replace(' (isLeaf)', ''),
-        isQuestion: node.isQuestion || false,
-      });
-      setIsSaveDisabled(true);
+  useEffect(() => {
+    if (account) {
+      form.setFieldsValue(account);
     } else {
-      setSelectedNode(null);
       form.resetFields();
-      setIsSaveDisabled(true);
     }
-  };
+  }, [account, form]);
 
-  const addNode = () => {
-    form.resetFields();
-    setSelectedNode(null);
-    setIsSaveDisabled(false);
-  };
-
-  const saveNode = (values) => {
-    const newKey = `0-${new Date().getTime()}`;
-    const newNode = {
-      title: values.message,
-      key: newKey,
-      parentKey: null,
-      icon: <CarryOutOutlined />,
-      isLeaf: false,
-      isQuestion: values.isQuestion,
-    };
-
-    setFlatTreeData([...flatTreeData, newNode]);
-    form.resetFields();
-    setIsSaveDisabled(true);
-  };
-
-  const applyChanges = (values) => {
-    setFlatTreeData(
-      flatTreeData.map((node) =>
-        node.key === selectedNode.key
-          ? {...node, title: values.message, isQuestion: values.isQuestion}
-          : node,
-      ),
-    );
-    form.resetFields();
-    setSelectedNode(null);
-  };
-
-  const deleteNode = () => {
-    const deleteNodeAndChildren = (key) => {
-      const nodesToDelete = flatTreeData.filter(
-        (node) => node.key === key || node.parentKey === key,
-      );
-      return flatTreeData.filter((node) => !nodesToDelete.includes(node));
-    };
-
-    setFlatTreeData(deleteNodeAndChildren(selectedNode.key));
-    setSelectedNode(null);
-    form.resetFields();
-  };
-
-  const handleSaveNode = () => {
-    form.validateFields().then((values) => {
-      saveNode(values);
-    });
+  const handleSubmit = async () => {
+    const values = await form.validateFields();
+    if (account) {
+      // eslint-disable-next-line react/prop-types
+      await updateAccount(account.id, values);
+    } else {
+      await createAccount(values);
+    }
+    onRefresh();
+    onClose();
   };
 
   return (
-    <div style={{display: 'flex', height: '100vh'}}>
-      <div style={{flex: 1, overflow: 'auto', padding: '16px'}}>
-        <Tree showLine onSelect={onSelect} treeData={treeData} />
-      </div>
-      <div style={{flex: 1, padding: '16px'}}>
-        <Form
-          form={form}
-          layout='vertical'
-          onFinish={applyChanges}
-          initialValues={{message: '', isQuestion: false}}>
-          <Form.Item
-            name='message'
-            label='Message'
-            rules={[{required: true, message: 'Please enter a message'}]}>
-            <Input />
-          </Form.Item>
-          <Form.Item name='isQuestion' valuePropName='checked'>
-            <Checkbox>Is it a question?</Checkbox>
-          </Form.Item>
-          <Form.Item>
-            <Row gutter={8}>
-              <Col>
-                <Button type='primary' htmlType='submit'>
-                  Apply
-                </Button>
-              </Col>
-              <Col>
-                <Button type='primary' onClick={addNode}>
-                  Add
-                </Button>
-              </Col>
-              <Col>
-                <Button
-                  type='primary'
-                  onClick={handleSaveNode}
-                  disabled={isSaveDisabled}>
-                  Save
-                </Button>
-              </Col>
-              <Col>
-                <Button
-                  type='danger'
-                  onClick={deleteNode}
-                  disabled={!selectedNode}>
-                  Delete
-                </Button>
-              </Col>
-            </Row>
-          </Form.Item>
-        </Form>
-      </div>
-    </div>
+    <Modal
+      visible={visible}
+      title={account ? 'Update Account' : 'New Account'}
+      onCancel={onClose}
+      footer={[
+        <Button key='cancel' onClick={onClose}>
+          Cancel
+        </Button>,
+        <Button key='submit' type='primary' onClick={handleSubmit}>
+          {account ? 'Update' : 'Create'}
+        </Button>,
+      ]}>
+      <Form form={form} layout='vertical'>
+        <Form.Item
+          name='accountHolderName'
+          label='Account Holder Name'
+          rules={[{required: true}]}>
+          <Input />
+        </Form.Item>
+        <Form.Item name='balance' label='Balance' rules={[{required: true}]}>
+          <InputNumber min={0} style={{width: '100%'}} />
+        </Form.Item>
+      </Form>
+    </Modal>
   );
 };
 
-export default App;
+// eslint-disable-next-line react/prop-types
+const DepositWithdrawModal = ({visible, onClose, onRefresh, account}) => {
+  const [amount, setAmount] = useState(0);
+
+  const handleDeposit = async () => {
+    // eslint-disable-next-line react/prop-types
+    await deposit(account.id, amount);
+    message.success('Amount deposited successfully');
+    onRefresh();
+    onClose();
+  };
+
+  const handleWithdraw = async () => {
+    // eslint-disable-next-line react/prop-types
+    await withdraw(account.id, amount);
+    message.success('Amount withdrawn successfully');
+    onRefresh();
+    onClose();
+  };
+
+  return (
+    <Modal
+      visible={visible}
+      title='Deposit/Withdraw'
+      onCancel={onClose}
+      footer={[
+        <Button key='withdraw' type='danger' onClick={handleWithdraw}>
+          Withdraw
+        </Button>,
+        <Button key='deposit' type='primary' onClick={handleDeposit}>
+          Deposit
+        </Button>,
+      ]}>
+      <InputNumber
+        min={0}
+        value={amount}
+        onChange={(value) => setAmount(value)}
+        style={{width: '100%'}}
+      />
+    </Modal>
+  );
+};
+
+const AccountTable = () => {
+  const [accounts, setAccounts] = useState([]);
+  const [selectedAccount, setSelectedAccount] = useState(null);
+  const [isAccountModalVisible, setAccountModalVisible] = useState(false);
+  const [isDepositWithdrawModalVisible, setDepositWithdrawModalVisible] =
+    useState(false);
+
+  useEffect(() => {
+    fetchAccounts();
+  }, []);
+
+  const fetchAccounts = async () => {
+    const response = await getAccounts();
+    setAccounts(response.data);
+  };
+
+  const handleDelete = async (id) => {
+    await deleteAccount(id);
+    message.success('Account deleted successfully');
+    await fetchAccounts();
+  };
+
+  const columns = [
+    {title: 'ID', dataIndex: 'id', key: 'id'},
+    {
+      title: 'Account Holder Name',
+      dataIndex: 'accountHolderName',
+      key: 'accountHolderName',
+    },
+    {title: 'Balance', dataIndex: 'balance', key: 'balance'},
+    {
+      title: 'Actions',
+      key: 'actions',
+      render: (_, record) => (
+        <>
+          <Button
+            onClick={() => {
+              setSelectedAccount(record);
+              setDepositWithdrawModalVisible(true);
+            }}>
+            Deposit/Withdraw
+          </Button>
+        </>
+      ),
+    },
+  ];
+
+  return (
+    <>
+      <Button
+        onClick={() => {
+          setSelectedAccount(null);
+          setAccountModalVisible(true);
+        }}>
+        New Account
+      </Button>
+      <Button
+        onClick={() => setAccountModalVisible(true)}
+        disabled={!selectedAccount}>
+        Update
+      </Button>
+      <Button
+        onClick={() => handleDelete(selectedAccount?.id)}
+        disabled={!selectedAccount}>
+        Delete
+      </Button>
+      <Table
+        columns={columns}
+        dataSource={accounts}
+        rowSelection={{
+          type: 'radio',
+          onChange: (_, selectedRows) => setSelectedAccount(selectedRows[0]),
+        }}
+        rowKey='id'
+      />
+      {isAccountModalVisible && (
+        <AccountModal
+          visible={isAccountModalVisible}
+          onClose={() => setAccountModalVisible(false)}
+          onRefresh={fetchAccounts}
+          account={selectedAccount}
+        />
+      )}
+      {isDepositWithdrawModalVisible && (
+        <DepositWithdrawModal
+          visible={isDepositWithdrawModalVisible}
+          onClose={() => setDepositWithdrawModalVisible(false)}
+          onRefresh={fetchAccounts}
+          account={selectedAccount}
+        />
+      )}
+    </>
+  );
+};
+
+export default AccountTable;
