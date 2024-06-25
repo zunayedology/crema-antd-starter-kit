@@ -14,13 +14,10 @@ const axiosInstance = axios.create({
 
 export const getAccounts = () => axiosInstance.get('/');
 export const createAccount = (account) => axiosInstance.post('/', account);
-export const updateAccount = (id, account) =>
-  axiosInstance.put(`/${id}`, account);
+export const updateAccount = (id, account) => axiosInstance.put(`/${id}`, account);
 export const deleteAccount = (id) => axiosInstance.delete(`/${id}`);
-export const deposit = (id, amount) =>
-  axiosInstance.put(`/${id}/deposit`, {amount});
-export const withdraw = (id, amount) =>
-  axiosInstance.put(`/${id}/withdraw`, {amount});
+export const deposit = (id, amount) => axiosInstance.put(`/${id}/deposit`, {amount});
+export const withdraw = (id, amount) => axiosInstance.put(`/${id}/withdraw`, {amount});
 
 // eslint-disable-next-line react/prop-types
 const AccountModal = ({visible, onClose, onRefresh, account}) => {
