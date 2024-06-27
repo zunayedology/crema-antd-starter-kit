@@ -2,22 +2,24 @@ import React, {useState, useEffect} from 'react';
 import {Table, Button, message, Modal, Form, Input, InputNumber} from 'antd';
 import axios from 'axios';
 
-const API_URL = 'http://localhost:8080/api/accounts';
+const API_URL = 'http://localhost:8080/api';
 
 const axiosInstance = axios.create({
   baseURL: API_URL,
+  timeout: 2000,
   headers: {
     'Content-Type': 'application/json',
   },
-  withCredentials: true,
 });
 
-export const getAccounts = () => axiosInstance.get('/');
-export const createAccount = (account) => axiosInstance.post('/', account);
-export const updateAccount = (id, account) => axiosInstance.put(`/${id}`, account);
-export const deleteAccount = (id) => axiosInstance.delete(`/${id}`);
-export const deposit = (id, amount) => axiosInstance.put(`/${id}/deposit`, {amount});
-export const withdraw = (id, amount) => axiosInstance.put(`/${id}/withdraw`, {amount});
+// eslint-disable-next-line
+//debugger;
+export const getAccounts = () => axiosInstance.get('/accounts').catch(error => console.log(error));
+export const createAccount = (account) => axiosInstance.post('/accounts', account);
+export const updateAccount = (id, account) => axiosInstance.put(`/accounts/${id}`, account);
+export const deleteAccount = (id) => axiosInstance.delete(`/accounts/${id}`);
+export const deposit = (id, amount) => axiosInstance.put(`/accounts/${id}/deposit`, {amount});
+export const withdraw = (id, amount) => axiosInstance.put(`accounts/${id}/withdraw`, {amount});
 
 // eslint-disable-next-line react/prop-types
 const AccountModal = ({visible, onClose, onRefresh, account}) => {
@@ -73,11 +75,11 @@ const AccountModal = ({visible, onClose, onRefresh, account}) => {
 
 // eslint-disable-next-line react/prop-types
 const DepositWithdrawModal = ({visible, onClose, onRefresh, account}) => {
-  const [amount, setAmount] = useState(0);
+  const [amount, setAmount] = useState();
 
   const handleDeposit = async () => {
     // eslint-disable-next-line react/prop-types
-    await deposit(account.id, amount);
+    await deposit(account?.id, amount);
     message.success('Amount deposited successfully');
     onRefresh();
     onClose();
@@ -85,7 +87,7 @@ const DepositWithdrawModal = ({visible, onClose, onRefresh, account}) => {
 
   const handleWithdraw = async () => {
     // eslint-disable-next-line react/prop-types
-    await withdraw(account.id, amount);
+    await withdraw(account?.id, amount);
     message.success('Amount withdrawn successfully');
     onRefresh();
     onClose();
@@ -118,8 +120,7 @@ const AccountTable = () => {
   const [accounts, setAccounts] = useState([]);
   const [selectedAccount, setSelectedAccount] = useState(null);
   const [isAccountModalVisible, setAccountModalVisible] = useState(false);
-  const [isDepositWithdrawModalVisible, setDepositWithdrawModalVisible] =
-    useState(false);
+  const [isDepositWithdrawModalVisible, setDepositWithdrawModalVisible] = useState(false);
 
   useEffect(() => {
     fetchAccounts();
@@ -127,7 +128,7 @@ const AccountTable = () => {
 
   const fetchAccounts = async () => {
     const response = await getAccounts();
-    setAccounts(response.data);
+    setAccounts(response?.data);
   };
 
   const handleDelete = async (id) => {
@@ -145,7 +146,7 @@ const AccountTable = () => {
     },
     {title: 'Balance', dataIndex: 'balance', key: 'balance'},
     {
-      title: 'Actions',
+      title: 'Deposit/Withdraw',
       key: 'actions',
       render: (_, record) => (
         <>
@@ -154,7 +155,7 @@ const AccountTable = () => {
               setSelectedAccount(record);
               setDepositWithdrawModalVisible(true);
             }}>
-            Deposit/Withdraw
+            Action
           </Button>
         </>
       ),
